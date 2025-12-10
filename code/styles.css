@@ -32,12 +32,21 @@ body {
   justify-content: center;
 }
 
-.container {
+/* .container {
   display: flex;
   flex-direction: column;
   gap: 16px;
   padding: 24px;
+} */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;              /* mais espaço entre os blocos */
+  padding: 32px;         /* mais respiro interno */
+  transform: scale(1.15);/* <<< AQUI aumenta tudo */
 }
+
 
 .main-card {
   padding: 24px 32px;
