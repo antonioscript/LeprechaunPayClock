@@ -10,10 +10,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const workDaysPerMonthConfig = 21;
 
   // Horário de trabalho (hora + minuto)
-    const startHour = 0;
-    const startMinute = 2;  // <-- AQUI você testa os minutos
+    const startHour = 9;
+    const startMinute = 0;  // <-- AQUI você testa os minutos
 
-    const endHour = 8;
+    const endHour = 18;
     const endMinute = 0;
 
 
