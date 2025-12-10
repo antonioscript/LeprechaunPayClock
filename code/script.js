@@ -222,4 +222,36 @@ document.addEventListener("DOMContentLoaded", () => {
 
   updateSalaryMeter();
   setInterval(updateSalaryMeter, 1000);
+
+
+  // =============================
+// TOGGLE DE TEMA (DARK / LIGHT)
+// =============================
+
+const toggleButton = document.getElementById("toggleTheme");
+const htmlEl = document.documentElement;
+
+// Carrega tema salvo
+const savedTheme = localStorage.getItem("theme");
+
+if (savedTheme) {
+  htmlEl.setAttribute("data-theme", savedTheme);
+  toggleButton.textContent =
+    savedTheme === "light" ? "Dark Mode" : "Light Mode";
+}
+
+toggleButton.addEventListener("click", () => {
+  const currentTheme = htmlEl.getAttribute("data-theme");
+
+  if (currentTheme === "light") {
+    htmlEl.removeAttribute("data-theme");
+    localStorage.setItem("theme", "dark");
+    toggleButton.textContent = "Light Mode";
+  } else {
+    htmlEl.setAttribute("data-theme", "light");
+    localStorage.setItem("theme", "light");
+    toggleButton.textContent = "Dark Mode";
+  }
+});
+
 });
