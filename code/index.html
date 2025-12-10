@@ -2,85 +2,181 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Leprechaun Pay Clock</title>
+  <title>Saláriômetro – Dia, Mês e Ano</title>
   <style>
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #0b1020;
+      background: #050816;
       color: #f5f5f5;
+      margin: 0;
+      min-height: 100vh;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 100vh;
-      margin: 0;
     }
 
-    .card {
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding: 24px;
+    }
+
+    .main-card {
       padding: 24px 32px;
-      border-radius: 16px;
-      background: #151b30;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      border-radius: 18px;
+      background: #101630;
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
       text-align: center;
-      min-width: 320px;
+      min-width: 340px;
     }
 
     h1 {
-      margin-top: 0;
-      margin-bottom: 12px;
+      margin: 0 0 8px;
       font-size: 24px;
     }
 
-    .big-value {
-      font-size: 40px;
-      font-weight: bold;
-      margin: 8px 0 4px;
-    }
-
     .subtitle {
-      font-size: 14px;
+      font-size: 13px;
       opacity: 0.8;
       margin-bottom: 16px;
     }
 
-    .row {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 8px;
-      font-size: 14px;
+    .big-value {
+      font-size: 40px;
+      font-weight: 700;
+      margin: 4px 0;
     }
 
     .status {
-      margin-top: 16px;
+      margin-top: 12px;
       font-size: 13px;
+      opacity: 0.85;
+    }
+
+    .small-cards {
+      display: flex;
+      gap: 12px;
+    }
+
+    .small-card {
+      flex: 1;
+      padding: 16px;
+      border-radius: 14px;
+      background: #151b3d;
+      text-align: center;
+    }
+
+    .small-title {
+      font-size: 14px;
+      opacity: 0.8;
+      margin-bottom: 6px;
+    }
+
+    .small-value {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .small-caption {
+      font-size: 11px;
+      opacity: 0.7;
+    }
+
+    .label-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      margin-top: 6px;
       opacity: 0.8;
     }
+
+    .powered-by {
+      margin-top: 12px;
+      text-align: center;
+      font-size: 16px;
+      opacity: 0.6;
+      letter-spacing: 0.3px;
+    }
+
+    .powered-by {
+      margin-top: 14px;
+      text-align: center;
+      font-size: 14px;
+      opacity: 0.7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .powered-by strong {
+      color: #5aff9d;
+      font-weight: 600;
+    }
+
+    .powered-by .dot {
+      opacity: 0.4;
+    }
+
+
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>⏱️ Saláriômetro</h1>
-    <div class="subtitle">
-      Ganho acumulado hoje entre <span id="startTimeLabel"></span> e <span id="endTimeLabel"></span>
+  <div class="container">
+    <!-- Relógio principal: Dia -->
+    <div class="main-card">
+      <h1>⏱️ Saláriômetro do Dia</h1>
+      <div class="subtitle">
+        Ganho acumulado hoje entre <span id="startTimeLabel"></span> e <span id="endTimeLabel"></span>
+      </div>
+
+      <div class="big-value" id="earnedToday">R$ 0,00</div>
+      <div class="subtitle">hoje</div>
+
+      <div class="label-row">
+        <span>R$/hora</span>
+        <span id="perHour">-</span>
+      </div>
+      <div class="label-row">
+        <span>R$/minuto</span>
+        <span id="perMinute">-</span>
+      </div>
+      <div class="label-row">
+        <span>R$/segundo</span>
+        <span id="perSecond">-</span>
+      </div>
+
+      <div class="status" id="statusText"></div>
     </div>
 
-    <div class="big-value" id="earnedToday">R$ 0,00</div>
-    <div class="subtitle">hoje</div>
+    <!-- Relógios menores: Mês e Ano -->
+    <div class="small-cards">
+      <div class="small-card">
+        <div class="small-title">📅 Mês</div>
+        <div class="small-value" id="earnedMonth">R$ 0,00</div>
+        <div class="small-caption" id="monthCaption"></div>
+      </div>
 
-    <div class="row">
-      <span>R$/hora:</span>
-      <span id="perHour">-</span>
+      <div class="small-card">
+        <div class="small-title">📆 Ano</div>
+        <div class="small-value" id="earnedYear">R$ 0,00</div>
+        <div class="small-caption" id="yearCaption"></div>
+      </div>
     </div>
-    <div class="row">
-      <span>R$/minuto:</span>
-      <span id="perMinute">-</span>
-    </div>
-    <div class="row">
-      <span>R$/segundo:</span>
-      <span id="perSecond">-</span>
+    <!-- <div class="powered-by">
+      Powered by <strong>Leprechaun Finance</strong> 🍀
+    </div> -->
+
+    <div class="powered-by">
+      <span>Powered by</span>
+      <strong>Leprechaun Finance</strong>
+      <span class="dot">•</span>
+      <span>Real-time Money Tools</span>
     </div>
 
-    <div class="status" id="statusText"></div>
+
   </div>
 
   <script>
@@ -88,26 +184,32 @@
     // CONFIGURAÇÕES
     // =============================
 
-    // Quanto você ganha por dia de trabalho
-    const dailySalary = 2000; // R$ 2.000,00 por dia
+    // Salário mensal (ajusta aqui)
+    const monthlySalary = 20000; // R$ 20.000,00 / mês
 
-    // Horário de início e fim do expediente (24h)
-    const startHour = 21;  // 08:00
-    const endHour = 10;   // 17:00
+    // Quantos dias úteis por mês você quer considerar (média)
+    const workDaysPerMonthConfig = 22;
 
-    // Ignorar finais de semana?
+    // Horário de trabalho
+    const startHour = 21;  // 09:00
+    const endHour = 24;   // 18:00
+
+    // Ignorar sábado e domingo?
     const ignoreWeekends = true;
 
     // =============================
-    // CÁLCULOS BASE
+    // DERIVAÇÕES
     // =============================
 
-    const totalWorkSeconds = (endHour - startHour) * 60 * 60;
-    const valuePerSecond = dailySalary / totalWorkSeconds;
-    const valuePerMinute = valuePerSecond * 60;
-    const valuePerHour = valuePerSecond * 3600;
+    const dailySalary = monthlySalary / workDaysPerMonthConfig;
+    const yearlySalary = monthlySalary * 12;
 
-    // Helper pra formatar em real
+    const totalWorkSecondsPerDay = (endHour - startHour) * 3600;
+    const valuePerSecondDay = dailySalary / totalWorkSecondsPerDay;
+    const valuePerMinute = valuePerSecondDay * 60;
+    const valuePerHour = valuePerSecondDay * 3600;
+
+    // Helpers
     function formatCurrency(value) {
       return value.toLocaleString("pt-BR", {
         style: "currency",
@@ -116,13 +218,34 @@
       });
     }
 
-    // Atualiza labels fixas
-    document.getElementById("startTimeLabel").textContent = `${String(startHour).padStart(2, "0")}:00`;
-    document.getElementById("endTimeLabel").textContent = `${String(endHour).padStart(2, "0")}:00`;
+    function isWorkDay(date) {
+      const d = date.getDay(); // 0 = domingo, 6 = sábado
+      if (!ignoreWeekends) return true;
+      return d >= 1 && d <= 5;
+    }
+
+    // Conta quantos dias úteis existem entre duas datas (inclusive start, exclusivo end)
+    function countWorkDaysBetween(startDate, endDate) {
+      const d = new Date(startDate.getTime());
+      let count = 0;
+      while (d < endDate) {
+        if (isWorkDay(d)) {
+          count++;
+        }
+        d.setDate(d.getDate() + 1);
+      }
+      return count;
+    }
+
+    // Labels fixos
+    document.getElementById("startTimeLabel").textContent =
+      `${String(startHour).padStart(2, "0")}:00`;
+    document.getElementById("endTimeLabel").textContent =
+      `${String(endHour).padStart(2, "0")}:00`;
 
     document.getElementById("perHour").textContent = formatCurrency(valuePerHour);
     document.getElementById("perMinute").textContent = formatCurrency(valuePerMinute);
-    document.getElementById("perSecond").textContent = formatCurrency(valuePerSecond);
+    document.getElementById("perSecond").textContent = formatCurrency(valuePerSecondDay);
 
     // =============================
     // LOOP DE ATUALIZAÇÃO
@@ -130,18 +253,26 @@
 
     function updateSalaryMeter() {
       const now = new Date();
-      const dayOfWeek = now.getDay(); // 0 = domingo, 6 = sábado
-
       const statusEl = document.getElementById("statusText");
-      const earnedEl = document.getElementById("earnedToday");
+      const earnedTodayEl = document.getElementById("earnedToday");
+      const earnedMonthEl = document.getElementById("earnedMonth");
+      const earnedYearEl = document.getElementById("earnedYear");
+      const monthCaptionEl = document.getElementById("monthCaption");
+      const yearCaptionEl = document.getElementById("yearCaption");
 
-      // Se ignorar fim de semana e hoje for sábado(6) ou domingo(0)
+      const dayOfWeek = now.getDay(); // 0 = dom, 6 = sáb
+
       if (ignoreWeekends && (dayOfWeek === 0 || dayOfWeek === 6)) {
-        earnedEl.textContent = formatCurrency(0);
-        statusEl.textContent = "Hoje não conta: fim de semana 💤";
+        earnedTodayEl.textContent = formatCurrency(0);
+        earnedMonthEl.textContent = formatCurrency(0);
+        earnedYearEl.textContent = formatCurrency(0);
+        statusEl.textContent = "Hoje é fim de semana 💤";
+        monthCaptionEl.textContent = "Sem contagem em fins de semana";
+        yearCaptionEl.textContent = "Sem contagem em fins de semana";
         return;
       }
 
+      // --- Dia (relógio central) ---
       const currentSeconds =
         now.getHours() * 3600 +
         now.getMinutes() * 60 +
@@ -151,28 +282,77 @@
       const endSeconds = endHour * 3600;
 
       let earnedToday = 0;
+      let progressToday = 0; // 0 a 1
 
       if (currentSeconds <= startSeconds) {
-        // Antes de começar
         earnedToday = 0;
+        progressToday = 0;
         statusEl.textContent = "Ainda não começou o expediente 🚦";
       } else if (currentSeconds >= endSeconds) {
-        // Depois que terminou
         earnedToday = dailySalary;
+        progressToday = 1;
         statusEl.textContent = "Expediente encerrado ✅";
       } else {
-        // Durante o expediente
         const elapsed = currentSeconds - startSeconds;
-        earnedToday = elapsed * valuePerSecond;
+        earnedToday = elapsed * valuePerSecondDay;
+        progressToday = elapsed / totalWorkSecondsPerDay;
 
-        const progress = (elapsed / totalWorkSeconds) * 100;
-        statusEl.textContent = `Trabalho em andamento: ${progress.toFixed(2)}% do dia concluído ⏳`;
+        const percentage = (progressToday * 100).toFixed(2);
+        statusEl.textContent = `Trabalho em andamento: ${percentage}% do dia concluído ⏳`;
       }
 
-      earnedEl.textContent = formatCurrency(earnedToday);
+      earnedTodayEl.textContent = formatCurrency(earnedToday);
+
+      // --- Mês (relógio menor) ---
+      const year = now.getFullYear();
+      const month = now.getMonth(); // 0 = janeiro
+      const today = new Date(year, month, now.getDate());
+
+      const monthStart = new Date(year, month, 1);
+      const todayStart = new Date(year, month, now.getDate());
+
+      // Dias úteis completos (até ontem)
+      const completedWorkDaysInMonth =
+        countWorkDaysBetween(monthStart, todayStart) - (isWorkDay(today) ? 0 : 1);
+
+      const totalWorkedSecondsMonthBeforeToday =
+        Math.max(completedWorkDaysInMonth, 0) * totalWorkSecondsPerDay;
+
+      const totalWorkedSecondsMonth =
+        totalWorkedSecondsMonthBeforeToday + progressToday * totalWorkSecondsPerDay;
+
+      const estimatedWorkDaysMonth = workDaysPerMonthConfig;
+      const totalWorkSecondsMonth = estimatedWorkDaysMonth * totalWorkSecondsPerDay;
+
+      const valuePerSecondMonth = (dailySalary * estimatedWorkDaysMonth) / totalWorkSecondsMonth;
+      const earnedMonth = totalWorkedSecondsMonth * valuePerSecondMonth;
+
+      earnedMonthEl.textContent = formatCurrency(earnedMonth);
+      monthCaptionEl.textContent =
+        `Aproximado com base em ${estimatedWorkDaysMonth} dias úteis/mês`;
+
+      // --- Ano (relógio menor) ---
+      const yearStart = new Date(year, 0, 1);
+      const completedWorkDaysInYear =
+        countWorkDaysBetween(yearStart, todayStart) - (isWorkDay(today) ? 0 : 1);
+
+      const totalWorkedSecondsYearBeforeToday =
+        Math.max(completedWorkDaysInYear, 0) * totalWorkSecondsPerDay;
+
+      const totalWorkedSecondsYear =
+        totalWorkedSecondsYearBeforeToday + progressToday * totalWorkSecondsPerDay;
+
+      const estimatedWorkDaysYear = workDaysPerMonthConfig * 12;
+      const totalWorkSecondsYear = estimatedWorkDaysYear * totalWorkSecondsPerDay;
+
+      const valuePerSecondYear = (dailySalary * estimatedWorkDaysYear) / totalWorkSecondsYear;
+      const earnedYear = totalWorkedSecondsYear * valuePerSecondYear;
+
+      earnedYearEl.textContent = formatCurrency(earnedYear);
+      yearCaptionEl.textContent =
+        `Estimado para ${estimatedWorkDaysYear} dias úteis/ano`;
     }
 
-    // Atualiza imediatamente e depois a cada segundo
     updateSalaryMeter();
     setInterval(updateSalaryMeter, 1000);
   </script>
