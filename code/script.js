@@ -7,21 +7,26 @@ document.addEventListener("DOMContentLoaded", () => {
   const monthlySalary = 20000; // ajusta aqui
 
   // Dias úteis por mês (média)
-  const workDaysPerMonthConfig = 22;
+  const workDaysPerMonthConfig = 21;
 
-  // Horário de trabalho (agora em modo teste noturno)
-  const startHour = 21;  // 21:00
+  // Horário de trabalho (modo teste noturno)
+  const startHour = 22;  // 21:00
   const endHour = 24;    // 24:00 (meia-noite)
 
   // Ignorar sábado e domingo?
   const ignoreWeekends = true;
+
+  // Como o ano deve ser contado?
+  // "calendar" = desde 1º de janeiro
+  // "fromNow"  = começa a partir de hoje
+  const yearStartMode = "fromNow";
 
   // =============================
   // DERIVAÇÕES
   // =============================
 
   const dailySalary = monthlySalary / workDaysPerMonthConfig;
-  const yearlySalary = monthlySalary * 12;
+  const yearlySalary = monthlySalary * 12; // se quiser usar depois
 
   // lida com virada de dia (ex.: 21 → 24, ou 22 → 6)
   let totalWorkHours;
@@ -140,7 +145,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const percentage = (progressToday * 100).toFixed(2);
       statusEl.textContent =
-        `Trabalho em andamento: ${percentage}% do dia concluído ⏳`;
+        `Trabalho em andamento: ${percentage}% do dia concluído`;
     }
 
     earnedTodayEl.textContent = formatCurrency(earnedToday);
@@ -174,7 +179,11 @@ document.addEventListener("DOMContentLoaded", () => {
       `Aproximado com base em ${estimatedWorkDaysMonth} dias úteis/mês`;
 
     // ----- ANO -----
-    const yearStart = new Date(year, 0, 1);
+    // Se "fromNow", começa hoje; se "calendar", começa em 1º de janeiro
+    const yearStart =
+      yearStartMode === "fromNow"
+        ? todayStart
+        : new Date(year, 0, 1);
 
     const completedWorkDaysInYear =
       countWorkDaysBetween(yearStart, todayStart) - (isWorkDay(today) ? 0 : 1);
@@ -193,8 +202,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const earnedYear = totalWorkedSecondsYear * valuePerSecondYear;
 
     earnedYearEl.textContent = formatCurrency(earnedYear);
-    yearCaptionEl.textContent =
-      `Estimado para ${estimatedWorkDaysYear} dias úteis/ano`;
+
+    if (yearStartMode === "fromNow") {
+      yearCaptionEl.textContent =
+        `Contando a partir de hoje (projeção para ${estimatedWorkDaysYear} dias úteis)`;
+    } else {
+      yearCaptionEl.textContent =
+        `Estimado para ${estimatedWorkDaysYear} dias úteis/ano`;
+    }
   }
 
   // roda uma vez na entrada
