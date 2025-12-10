@@ -4,39 +4,49 @@ document.addEventListener("DOMContentLoaded", () => {
   // =============================
 
   // Salário mensal
-  const monthlySalary = 20000; // ajusta aqui
+  const monthlySalary = 40000;
 
   // Dias úteis por mês (média)
   const workDaysPerMonthConfig = 21;
 
-  // Horário de trabalho (modo teste noturno)
-  const startHour = 22;  // 21:00
-  const endHour = 24;    // 24:00 (meia-noite)
+  // Horário de trabalho (hora + minuto)
+    const startHour = 0;
+    const startMinute = 2;  // <-- AQUI você testa os minutos
+
+    const endHour = 8;
+    const endMinute = 0;
+
 
   // Ignorar sábado e domingo?
   const ignoreWeekends = true;
 
-  // Como o ano deve ser contado?
-  // "calendar" = desde 1º de janeiro
-  // "fromNow"  = começa a partir de hoje
-  const yearStartMode = "fromNow";
+  // Modo de início do ANO:
+  // "month"    = começa no 1º dia do mês atual
+  // "calendar" = começa no 1º de janeiro
+  const yearStartMode = "month"; // <-- TROCA AQUI QUANDO QUISER
 
   // =============================
   // DERIVAÇÕES
   // =============================
 
   const dailySalary = monthlySalary / workDaysPerMonthConfig;
-  const yearlySalary = monthlySalary * 12; // se quiser usar depois
 
-  // lida com virada de dia (ex.: 21 → 24, ou 22 → 6)
-  let totalWorkHours;
-  if (endHour > startHour) {
-    totalWorkHours = endHour - startHour;
-  } else {
-    totalWorkHours = (24 - startHour) + endHour;
-  }
+  let totalWorkSecondsPerDay;
 
-  const totalWorkSecondsPerDay = totalWorkHours * 3600;
+    const startTotalSeconds = (startHour * 3600) + (startMinute * 60);
+    const endTotalSeconds =
+    (endHour === 24 ? 24 * 3600 : endHour * 3600) + (endMinute * 60);
+
+    if (endTotalSeconds > startTotalSeconds) {
+    totalWorkSecondsPerDay = endTotalSeconds - startTotalSeconds;
+    } else {
+    // Virada de dia
+    totalWorkSecondsPerDay =
+        (24 * 3600 - startTotalSeconds) + endTotalSeconds;
+    }
+
+
+  
   const valuePerSecondDay = dailySalary / totalWorkSecondsPerDay;
   const valuePerMinute = valuePerSecondDay * 60;
   const valuePerHour = valuePerSecondDay * 3600;
@@ -54,7 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function isWorkDay(date) {
-    const d = date.getDay(); // 0 = dom, 6 = sáb
+    const d = date.getDay();
     if (!ignoreWeekends) return true;
     return d >= 1 && d <= 5;
   }
@@ -64,9 +74,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let count = 0;
 
     while (d < endDate) {
-      if (isWorkDay(d)) {
-        count++;
-      }
+      if (isWorkDay(d)) count++;
       d.setDate(d.getDate() + 1);
     }
 
@@ -93,8 +101,12 @@ document.addEventListener("DOMContentLoaded", () => {
   // LABELS FIXOS
   // =============================
 
-  startTimeLabelEl.textContent = `${String(startHour).padStart(2, "0")}:00`;
-  endTimeLabelEl.textContent = `${String(endHour).padStart(2, "0")}:00`;
+  startTimeLabelEl.textContent =
+  `${String(startHour).padStart(2, "0")}:${String(startMinute).padStart(2, "0")}`;
+
+    endTimeLabelEl.textContent =
+  `${String(endHour).padStart(2, "0")}:${String(endMinute).padStart(2, "0")}`;
+
 
   perHourEl.textContent = formatCurrency(valuePerHour);
   perMinuteEl.textContent = formatCurrency(valuePerMinute);
@@ -106,7 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function updateSalaryMeter() {
     const now = new Date();
-    const dayOfWeek = now.getDay(); // 0 = dom, 6 = sáb
+    const dayOfWeek = now.getDay();
 
     if (ignoreWeekends && (dayOfWeek === 0 || dayOfWeek === 6)) {
       earnedTodayEl.textContent = formatCurrency(0);
@@ -123,16 +135,15 @@ document.addEventListener("DOMContentLoaded", () => {
       now.getMinutes() * 60 +
       now.getSeconds();
 
-    const startSeconds = startHour * 3600;
-    const endSeconds =
-      endHour === 24 ? 24 * 3600 : endHour * 3600;
+    const startSeconds = (startHour * 3600) + (startMinute * 60);
+
+    const endSeconds = (endHour === 24 ? 24 * 3600 : endHour * 3600) + (endMinute * 60);
+
 
     let earnedToday = 0;
-    let progressToday = 0; // 0 a 1
+    let progressToday = 0;
 
     if (currentSeconds <= startSeconds) {
-      earnedToday = 0;
-      progressToday = 0;
       statusEl.textContent = "Ainda não começou o expediente 🚦";
     } else if (currentSeconds >= endSeconds) {
       earnedToday = dailySalary;
@@ -142,10 +153,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const elapsed = currentSeconds - startSeconds;
       earnedToday = elapsed * valuePerSecondDay;
       progressToday = elapsed / totalWorkSecondsPerDay;
-
-      const percentage = (progressToday * 100).toFixed(2);
       statusEl.textContent =
-        `Trabalho em andamento: ${percentage}% do dia concluído`;
+        `Trabalho em andamento: ${(progressToday * 100).toFixed(2)}% do dia concluído`;
     }
 
     earnedTodayEl.textContent = formatCurrency(earnedToday);
@@ -154,66 +163,63 @@ document.addEventListener("DOMContentLoaded", () => {
     const year = now.getFullYear();
     const month = now.getMonth();
     const today = new Date(year, month, now.getDate());
-
     const monthStart = new Date(year, month, 1);
     const todayStart = new Date(year, month, now.getDate());
 
     const completedWorkDaysInMonth =
-      countWorkDaysBetween(monthStart, todayStart) - (isWorkDay(today) ? 0 : 1);
+      countWorkDaysBetween(monthStart, todayStart);
 
     const totalWorkedSecondsMonth =
-      Math.max(completedWorkDaysInMonth, 0) * totalWorkSecondsPerDay +
+      completedWorkDaysInMonth * totalWorkSecondsPerDay +
       progressToday * totalWorkSecondsPerDay;
 
     const estimatedWorkDaysMonth = workDaysPerMonthConfig;
     const totalWorkSecondsMonth =
       estimatedWorkDaysMonth * totalWorkSecondsPerDay;
 
-    const valuePerSecondMonth =
-      (dailySalary * estimatedWorkDaysMonth) / totalWorkSecondsMonth;
-
-    const earnedMonth = totalWorkedSecondsMonth * valuePerSecondMonth;
+    const earnedMonth =
+      (totalWorkedSecondsMonth / totalWorkSecondsMonth) *
+      (dailySalary * estimatedWorkDaysMonth);
 
     earnedMonthEl.textContent = formatCurrency(earnedMonth);
     monthCaptionEl.textContent =
       `Aproximado com base em ${estimatedWorkDaysMonth} dias úteis/mês`;
 
-    // ----- ANO -----
-    // Se "fromNow", começa hoje; se "calendar", começa em 1º de janeiro
+    // ----- ANO (AGORA CORRETO) -----
+
+    // Ano começa no primeiro dia do MÊS ou de JANEIRO
     const yearStart =
-      yearStartMode === "fromNow"
-        ? todayStart
+      yearStartMode === "month"
+        ? new Date(year, month, 1)
         : new Date(year, 0, 1);
 
     const completedWorkDaysInYear =
-      countWorkDaysBetween(yearStart, todayStart) - (isWorkDay(today) ? 0 : 1);
+      countWorkDaysBetween(yearStart, todayStart);
+
+    const estimatedWorkDaysYear =
+      yearStartMode === "month"
+        ? workDaysPerMonthConfig * (12 - month)
+        : workDaysPerMonthConfig * 12;
 
     const totalWorkedSecondsYear =
-      Math.max(completedWorkDaysInYear, 0) * totalWorkSecondsPerDay +
+      completedWorkDaysInYear * totalWorkSecondsPerDay +
       progressToday * totalWorkSecondsPerDay;
 
-    const estimatedWorkDaysYear = workDaysPerMonthConfig * 12;
     const totalWorkSecondsYear =
       estimatedWorkDaysYear * totalWorkSecondsPerDay;
 
-    const valuePerSecondYear =
-      (dailySalary * estimatedWorkDaysYear) / totalWorkSecondsYear;
-
-    const earnedYear = totalWorkedSecondsYear * valuePerSecondYear;
+    const earnedYear =
+      (totalWorkedSecondsYear / totalWorkSecondsYear) *
+      (dailySalary * estimatedWorkDaysYear);
 
     earnedYearEl.textContent = formatCurrency(earnedYear);
 
-    if (yearStartMode === "fromNow") {
-      yearCaptionEl.textContent =
-        `Contando a partir de hoje (projeção para ${estimatedWorkDaysYear} dias úteis)`;
-    } else {
-      yearCaptionEl.textContent =
-        `Estimado para ${estimatedWorkDaysYear} dias úteis/ano`;
-    }
+    yearCaptionEl.textContent =
+      yearStartMode === "month"
+        ? "Contando a partir do início deste mês"
+        : "Contando a partir de janeiro";
   }
 
-  // roda uma vez na entrada
   updateSalaryMeter();
-  // e depois a cada segundo
   setInterval(updateSalaryMeter, 1000);
 });
