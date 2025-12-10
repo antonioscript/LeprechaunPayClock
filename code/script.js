@@ -10,12 +10,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const workDaysPerMonthConfig = 21;
 
   // Horário de trabalho (hora + minuto)
-    const startHour = 9;
-    const startMinute = 0;  // <-- AQUI você testa os minutos
+  const startHour = 9;
+  const startMinute = 0;
 
-    const endHour = 18;
-    const endMinute = 0;
+  const endHour = 18;
+  const endMinute = 0;
 
+  // Intervalo de almoço (ex.: 12:00–13:00)
+  const breakStartHour = 12;
+  const breakStartMinute = 0;
+  const breakEndHour = 13;
+  const breakEndMinute = 0;
 
   // Ignorar sábado e domingo?
   const ignoreWeekends = true;
@@ -23,7 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Modo de início do ANO:
   // "month"    = começa no 1º dia do mês atual
   // "calendar" = começa no 1º de janeiro
-  const yearStartMode = "month"; // <-- TROCA AQUI QUANDO QUISER
+  const yearStartMode = "month";
 
   // =============================
   // DERIVAÇÕES
@@ -33,20 +38,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let totalWorkSecondsPerDay;
 
-    const startTotalSeconds = (startHour * 3600) + (startMinute * 60);
-    const endTotalSeconds =
+  const startTotalSeconds = (startHour * 3600) + (startMinute * 60);
+  const endTotalSeconds =
     (endHour === 24 ? 24 * 3600 : endHour * 3600) + (endMinute * 60);
 
-    if (endTotalSeconds > startTotalSeconds) {
+  if (endTotalSeconds > startTotalSeconds) {
     totalWorkSecondsPerDay = endTotalSeconds - startTotalSeconds;
-    } else {
+  } else {
     // Virada de dia
     totalWorkSecondsPerDay =
-        (24 * 3600 - startTotalSeconds) + endTotalSeconds;
-    }
+      (24 * 3600 - startTotalSeconds) + endTotalSeconds;
+  }
 
+  // Intervalo de almoço
+  const breakStartSeconds =
+    (breakStartHour * 3600) + (breakStartMinute * 60);
+  const breakEndSeconds =
+    (breakEndHour * 3600) + (breakEndMinute * 60);
+  const breakDurationSeconds = breakEndSeconds - breakStartSeconds;
 
-  
+  // Desconta 1h (ou o intervalo definido) do total trabalhado
+  totalWorkSecondsPerDay -= breakDurationSeconds;
+
   const valuePerSecondDay = dailySalary / totalWorkSecondsPerDay;
   const valuePerMinute = valuePerSecondDay * 60;
   const valuePerHour = valuePerSecondDay * 3600;
@@ -102,11 +115,10 @@ document.addEventListener("DOMContentLoaded", () => {
   // =============================
 
   startTimeLabelEl.textContent =
-  `${String(startHour).padStart(2, "0")}:${String(startMinute).padStart(2, "0")}`;
+    `${String(startHour).padStart(2, "0")}:${String(startMinute).padStart(2, "0")}`;
 
-    endTimeLabelEl.textContent =
-  `${String(endHour).padStart(2, "0")}:${String(endMinute).padStart(2, "0")}`;
-
+  endTimeLabelEl.textContent =
+    `${String(endHour).padStart(2, "0")}:${String(endMinute).padStart(2, "0")}`;
 
   perHourEl.textContent = formatCurrency(valuePerHour);
   perMinuteEl.textContent = formatCurrency(valuePerMinute);
@@ -135,10 +147,8 @@ document.addEventListener("DOMContentLoaded", () => {
       now.getMinutes() * 60 +
       now.getSeconds();
 
-    const startSeconds = (startHour * 3600) + (startMinute * 60);
-
-    const endSeconds = (endHour === 24 ? 24 * 3600 : endHour * 3600) + (endMinute * 60);
-
+    const startSeconds = startTotalSeconds;
+    const endSeconds = endTotalSeconds;
 
     let earnedToday = 0;
     let progressToday = 0;
@@ -151,8 +161,22 @@ document.addEventListener("DOMContentLoaded", () => {
       statusEl.textContent = "Expediente encerrado ✅";
     } else {
       const elapsed = currentSeconds - startSeconds;
-      earnedToday = elapsed * valuePerSecondDay;
-      progressToday = elapsed / totalWorkSecondsPerDay;
+
+      let workedSeconds;
+      if (currentSeconds <= breakStartSeconds) {
+        // Antes do almoço: conta normal
+        workedSeconds = elapsed;
+      } else if (currentSeconds <= breakEndSeconds) {
+        // Durante o almoço: trava no que foi trabalhado até o início do intervalo
+        workedSeconds = breakStartSeconds - startSeconds;
+      } else {
+        // Depois do almoço: desconta o intervalo
+        workedSeconds = elapsed - breakDurationSeconds;
+      }
+
+      earnedToday = workedSeconds * valuePerSecondDay;
+      progressToday = workedSeconds / totalWorkSecondsPerDay;
+
       statusEl.textContent =
         `Trabalho em andamento: ${(progressToday * 100).toFixed(2)}% do dia concluído`;
     }
@@ -185,9 +209,8 @@ document.addEventListener("DOMContentLoaded", () => {
     monthCaptionEl.textContent =
       `Aproximado com base em ${estimatedWorkDaysMonth} dias úteis/mês`;
 
-    // ----- ANO (AGORA CORRETO) -----
+    // ----- ANO -----
 
-    // Ano começa no primeiro dia do MÊS ou de JANEIRO
     const yearStart =
       yearStartMode === "month"
         ? new Date(year, month, 1)
@@ -223,35 +246,33 @@ document.addEventListener("DOMContentLoaded", () => {
   updateSalaryMeter();
   setInterval(updateSalaryMeter, 1000);
 
-
   // =============================
-// TOGGLE DE TEMA (DARK / LIGHT)
-// =============================
+  // TOGGLE DE TEMA (DARK / LIGHT)
+  // =============================
 
-const toggleButton = document.getElementById("toggleTheme");
-const htmlEl = document.documentElement;
+  const toggleButton = document.getElementById("toggleTheme");
+  const htmlEl = document.documentElement;
 
-// Carrega tema salvo
-const savedTheme = localStorage.getItem("theme");
+  // Carrega tema salvo
+  const savedTheme = localStorage.getItem("theme");
 
-if (savedTheme) {
-  htmlEl.setAttribute("data-theme", savedTheme);
-  toggleButton.textContent =
-    savedTheme === "light" ? "Dark Mode" : "Light Mode";
-}
-
-toggleButton.addEventListener("click", () => {
-  const currentTheme = htmlEl.getAttribute("data-theme");
-
-  if (currentTheme === "light") {
-    htmlEl.removeAttribute("data-theme");
-    localStorage.setItem("theme", "dark");
-    toggleButton.textContent = "Light Mode";
-  } else {
-    htmlEl.setAttribute("data-theme", "light");
-    localStorage.setItem("theme", "light");
-    toggleButton.textContent = "Dark Mode";
+  if (savedTheme) {
+    htmlEl.setAttribute("data-theme", savedTheme);
+    toggleButton.textContent =
+      savedTheme === "light" ? "Dark Mode" : "Light Mode";
   }
-});
 
+  toggleButton.addEventListener("click", () => {
+    const currentTheme = htmlEl.getAttribute("data-theme");
+
+    if (currentTheme === "light") {
+      htmlEl.removeAttribute("data-theme");
+      localStorage.setItem("theme", "dark");
+      toggleButton.textContent = "Light Mode";
+    } else {
+      htmlEl.setAttribute("data-theme", "light");
+      localStorage.setItem("theme", "light");
+      toggleButton.textContent = "Dark Mode";
+    }
+  });
 });
