@@ -3,17 +3,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // CONFIGURAÇÕES
   // =============================
 
-
-  const safraSalary = 5450;
-  const itauSalary = 5148;
-  const pepsiSalary = 20000;
-  const genialSalary = 7000;
-  const motzSalary = 8000;
-  const groupSc = 8000;
-  const as2Group = 5000;
-  
   // Salário mensal
-  const monthlySalary = safraSalary + itauSalary + pepsiSalary + genialSalary + motzSalary + groupSc + as2Group;
+  const monthlySalary = 40000;
 
   // Dias úteis por mês (média)
   const workDaysPerMonthConfig = 21;
