@@ -51,6 +51,15 @@ body {
 .header-logo {
   font-size: 18px;
   font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-image {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
 }
 
 .theme-toggle {
@@ -277,6 +286,12 @@ h1 {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.company-logo img {
+  max-width: 100%;
+  max-height: 60px;
+  object-fit: contain;
 }
 
 .company-earnings-today {

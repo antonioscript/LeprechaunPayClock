@@ -347,7 +347,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     updateCompanyCards(earnings.companies);
   }
 
-  // Mapa de logos/emojis das empresas
+  // Mapa de logos/imagens das empresas
+  const companyImages = {
+    'pepsi': null, // Não há imagem para Pepsi
+    'pepsico': null,
+    'itaú': '/assets/itau.svg',
+    'safra': '/assets/safra.svg',
+    'genial': '/assets/2.%20Genial.png',
+    'genial investimentos': '/assets/2.%20Genial.png',
+    'grupo sc': '/assets/grupo%20sc.png',
+    'motz': '/assets/3.%20Motz.png',
+    'founday': '/assets/founday.png'
+  };
+
+  // Fallback emojis para empresas sem imagem
   const companyEmojis = {
     'pepsi': '🥤',
     'pepsico': '🥤',
@@ -359,6 +372,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     'motz': '📱',
     'founday': '⚙️'
   };
+
+  function getCompanyImage(companyName) {
+    const name = companyName.toLowerCase();
+    for (const [key, imagePath] of Object.entries(companyImages)) {
+      if (name.includes(key)) {
+        return imagePath;
+      }
+    }
+    return null;
+  }
 
   function getCompanyEmoji(companyName) {
     const name = companyName.toLowerCase();
@@ -381,10 +404,18 @@ document.addEventListener("DOMContentLoaded", async () => {
       const card = document.createElement('div');
       card.className = `company-card ${!company.active ? 'inactive' : ''}`;
 
+      const imagePath = getCompanyImage(company.name);
       const emoji = getCompanyEmoji(company.name);
 
+      let logoHTML;
+      if (imagePath) {
+        logoHTML = `<img src="${imagePath}" alt="${company.name}" />`;
+      } else {
+        logoHTML = `${emoji}`;
+      }
+
       card.innerHTML = `
-        <div class="company-logo">${emoji}</div>
+        <div class="company-logo">${logoHTML}</div>
         <div class="company-name">${company.name}</div>
         <div class="company-earnings-today">${formatCurrency(company.earningsToday)}</div>
         <div class="company-status">${company.active ? 'Ativo' : 'Inicia em ' + new Date(company.start_date).toLocaleDateString('pt-BR')}</div>
