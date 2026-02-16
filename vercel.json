@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "buildCommand": "npm install",
+  "public": "public",
+  "functions": {
+    "api/**/*.js": {
+      "runtime": "nodejs18.x"
+    }
+  }
+}

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Leprechaun PayClock • Real-time Earnings</title>
+
+  <!-- CSS externo -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <div class="container">
+
+    <div class="theme-toggle">
+      <button id="toggleTheme">Modo Escuro</button>
+    </div>
+
+
+    <!-- Relógio principal: Dia -->
+    <div class="main-card">
+      <h1>Saláriômetro do Dia</h1>
+      <div class="subtitle">
+        Ganho acumulado hoje entre <span id="startTimeLabel"></span> e <span id="endTimeLabel"></span>
+      </div>
+
+      <div class="big-value" id="earnedToday">R$ 0,00</div>
+      <div class="subtitle">hoje</div>
+
+      <div class="label-row">
+        <span>R$/hora</span>
+        <span id="perHour">-</span>
+      </div>
+      <div class="label-row">
+        <span>R$/minuto</span>
+        <span id="perMinute">-</span>
+      </div>
+      <div class="label-row">
+        <span>R$/segundo</span>
+        <span id="perSecond">-</span>
+      </div>
+
+      <div class="status" id="statusText"></div>
+    </div>
+
+    <!-- Relógios menores: Mês e Ano -->
+    <div class="small-cards">
+      <div class="small-card">
+        <div class="small-title"> Mês</div>
+        <div class="small-value" id="earnedMonth">R$ 0,00</div>
+        <div class="small-caption" id="monthCaption"></div>
+      </div>
+
+      <div class="small-card">
+        <div class="small-title"> Ano</div>
+        <div class="small-value" id="earnedYear">R$ 0,00</div>
+        <div class="small-caption" id="yearCaption"></div>
+      </div>
+    </div>
+
+    <!-- Cards de Empresas -->
+    <div class="companies-section">
+      <h2>Ganho por Empresa</h2>
+      <div class="companies-grid" id="companiesContainer">
+        <!-- Preenchido dinamicamente via JavaScript -->
+      </div>
+    </div>
+
+    <!-- Branding -->
+    <div class="powered-by">
+      <span>Powered by</span>
+      <strong>Leprechaun Finance</strong>
+      <span class="dot">•</span>
+      <span>Real-time Money Tools</span>
+    </div>
+  </div>
+
+  <!-- JS externo -->
+  <script src="script.js"></script>
+</body>
+</html>
