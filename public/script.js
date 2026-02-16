@@ -349,13 +349,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Mapa de logos/imagens das empresas
   const companyImages = {
-    'pepsi': null, // Não há imagem para Pepsi
-    'pepsico': null,
+    'pepsi': '/assets/pepsi.png',
+    'pepsico': '/assets/pepsi.png',
     'itaú': '/assets/itau.svg',
     'safra': '/assets/safra.svg',
     'genial': '/assets/2.%20Genial.png',
     'genial investimentos': '/assets/2.%20Genial.png',
-    'grupo sc': '/assets/grupo%20sc.png',
+    'grupo sc': '/assets/logo.webp',
     'motz': '/assets/3.%20Motz.png',
     'founday': '/assets/founday.png'
   };
