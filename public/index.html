@@ -9,69 +9,70 @@
 </head>
 <body>
 
+  <!-- Header -->
+  <div class="header">
+    <div class="header-logo">🍀 leprech finance</div>
+    <div class="theme-toggle">
+      <button id="toggleTheme">Dark Mode</button>
+    </div>
+  </div>
+
   <div class="container">
 
-    <div class="theme-toggle">
-      <button id="toggleTheme">Modo Escuro</button>
+    <!-- Títu lo e descrição -->
+    <div style="padding: 0 0 16px 0;">
+      <h1 style="margin: 0 0 8px 0; font-size: 28px; font-weight: bold;">WELCOME BACK TO THE SALARIÔMETRO!</h1>
+      <p style="margin: 0; font-size: 14px; opacity: 0.7;">Ganho acumulado hoje entre 09:00 e 18:00</p>
     </div>
-
 
     <!-- Relógio principal: Dia -->
     <div class="main-card">
-      <h1>Saláriômetro do Dia</h1>
-      <div class="subtitle">
-        Ganho acumulado hoje entre <span id="startTimeLabel"></span> e <span id="endTimeLabel"></span>
-      </div>
-
       <div class="big-value" id="earnedToday">R$ 0,00</div>
-      <div class="subtitle">hoje</div>
+      <div style="font-size: 12px; opacity: 0.6;">ganho acumulado hoje</div>
 
-      <div class="label-row">
-        <span>R$/hora</span>
-        <span id="perHour">-</span>
-      </div>
-      <div class="label-row">
-        <span>R$/minuto</span>
-        <span id="perMinute">-</span>
-      </div>
-      <div class="label-row">
-        <span>R$/segundo</span>
-        <span id="perSecond">-</span>
+      <!-- Valores horizontais -->
+      <div class="main-card-values">
+        <div class="value-item">
+          <div class="value-label">R$/Hora</div>
+          <div class="value-amount" id="perHour">-</div>
+        </div>
+        <div class="value-item">
+          <div class="value-label">R$/Minuto</div>
+          <div class="value-amount" id="perMinute">-</div>
+        </div>
+        <div class="value-item">
+          <div class="value-label">R$/Segundo</div>
+          <div class="value-amount" id="perSecond">-</div>
+        </div>
+        <div class="value-item">
+          <div class="value-label">Mês</div>
+          <div class="value-amount" id="earnedMonth">-</div>
+        </div>
+        <div class="value-item">
+          <div class="value-label">Ano</div>
+          <div class="value-amount" id="earnedYear">-</div>
+        </div>
       </div>
 
-      <div class="status" id="statusText"></div>
-    </div>
-
-    <!-- Relógios menores: Mês e Ano -->
-    <div class="small-cards">
-      <div class="small-card">
-        <div class="small-title"> Mês</div>
-        <div class="small-value" id="earnedMonth">R$ 0,00</div>
-        <div class="small-caption" id="monthCaption"></div>
-      </div>
-
-      <div class="small-card">
-        <div class="small-title"> Ano</div>
-        <div class="small-value" id="earnedYear">R$ 0,00</div>
-        <div class="small-caption" id="yearCaption"></div>
-      </div>
+      <div class="status" id="statusText" style="margin-top: 16px;"></div>
     </div>
 
     <!-- Cards de Empresas -->
     <div class="companies-section">
-      <h2>Ganho por Empresa</h2>
+      <h2>Drill down by Partners</h2>
       <div class="companies-grid" id="companiesContainer">
         <!-- Preenchido dinamicamente via JavaScript -->
       </div>
     </div>
 
-    <!-- Branding -->
-    <div class="powered-by">
-      <span>Powered by</span>
-      <strong>Leprechaun Finance</strong>
-      <span class="dot">•</span>
-      <span>Real-time Money Tools</span>
-    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="powered-by">
+    <span>Powered by</span>
+    <strong>Leprechaun Finance</strong>
+    <span class="dot">•</span>
+    <span>Emotional Tools</span>
   </div>
 
   <!-- JS externo -->

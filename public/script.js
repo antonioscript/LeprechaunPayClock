@@ -343,28 +343,47 @@ document.addEventListener("DOMContentLoaded", async () => {
     updateCompanyCards(earnings.companies);
   }
 
+  // Mapa de logos/emojis das empresas
+  const companyEmojis = {
+    'pepsi': '🥤',
+    'pepsico': '🥤',
+    'itaú': '🏦',
+    'safra': '💳',
+    'genial': '💼',
+    'genial investimentos': '💼',
+    'grupo sc': '🚀',
+    'motz': '📱',
+    'founday': '⚙️'
+  };
+
+  function getCompanyEmoji(companyName) {
+    const name = companyName.toLowerCase();
+    for (const [key, emoji] of Object.entries(companyEmojis)) {
+      if (name.includes(key)) {
+        return emoji;
+      }
+    }
+    return '💰';
+  }
+
   function updateCompanyCards(companies) {
     const container = document.getElementById('companiesContainer');
 
-    // Se container não existe, pula
     if (!container) return;
 
-    // Limpar e reconstruir cards
     container.innerHTML = '';
 
     companies.forEach(company => {
       const card = document.createElement('div');
       card.className = `company-card ${!company.active ? 'inactive' : ''}`;
 
-      const status = company.active
-        ? 'Ativo'
-        : 'Inicia em ' + new Date(company.start_date).toLocaleDateString('pt-BR');
+      const emoji = getCompanyEmoji(company.name);
 
       card.innerHTML = `
+        <div class="company-logo">${emoji}</div>
         <div class="company-name">${company.name}</div>
         <div class="company-earnings-today">${formatCurrency(company.earningsToday)}</div>
-        <div class="company-earnings-month">${formatCurrency(company.earningsMonth)}</div>
-        <div class="company-status">${status}</div>
+        <div class="company-status">${company.active ? 'Ativo' : 'Inicia em ' + new Date(company.start_date).toLocaleDateString('pt-BR')}</div>
       `;
 
       container.appendChild(card);
