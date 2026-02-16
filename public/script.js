@@ -334,9 +334,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       statusEl.textContent = `Trabalho em andamento: ${(progress * 100).toFixed(2)}% do dia concluído`;
     }
 
-    // Valores por hora/minuto/segundo
-    const workSecondsPerDay = calculateWorkSecondsPerDay();
-    const hourlyRate = (earnings.totalMonth / 21) / 8; // Estimado
+    // Valores por hora/minuto/segundo (baseado no ganho de hoje)
+    const hoursWorkedToday = Math.max(0, (now.getHours() - WORK_HOURS.start) + (now.getMinutes() / 60));
+    const hourlyRate = hoursWorkedToday > 0 ? earnings.totalToday / hoursWorkedToday : 0;
 
     document.getElementById('perHour').textContent = formatCurrency(hourlyRate);
     document.getElementById('perMinute').textContent = formatCurrency(hourlyRate / 60);
