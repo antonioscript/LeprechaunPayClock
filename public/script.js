@@ -171,6 +171,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
+  function calculateEarningsToday(company, hoursWorked, workDaysThisMonth) {
+    if (company.type === 'PJ') {
+      // Para PJ: hourly_rate × horas_trabalhadas
+      return company.hourly_rate * hoursWorked;
+    } else {
+      // Para CLT: daily_rate × (horas_trabalhadas / 8)
+      const dailyRate = company.salary_monthly / workDaysThisMonth;
+      return dailyRate * (hoursWorked / 8);
+    }
+  }
+
   function getProgressTodayAsDecimal(now) {
     const currentHour = now.getHours();
     const currentMin = now.getMinutes();
@@ -199,6 +210,32 @@ document.addEventListener("DOMContentLoaded", async () => {
     return Math.min(workedSeconds / totalWorkSeconds, 1);
   }
 
+  function getHoursWorkedToday(now) {
+    const currentHour = now.getHours();
+    const currentMin = now.getMinutes();
+    const currentSec = now.getSeconds();
+
+    const currentSeconds = currentHour * 3600 + currentMin * 60 + currentSec;
+    const startSeconds = WORK_HOURS.start * 3600;
+    const endSeconds = WORK_HOURS.end * 3600;
+    const breakStartSeconds = LUNCH_BREAK.start * 3600;
+    const breakEndSeconds = LUNCH_BREAK.end * 3600;
+
+    if (currentSeconds < startSeconds) return 0;
+    if (currentSeconds >= endSeconds) return 8; // 8 horas de trabalho
+
+    let workedSeconds;
+    if (currentSeconds < breakStartSeconds) {
+      workedSeconds = currentSeconds - startSeconds;
+    } else if (currentSeconds < breakEndSeconds) {
+      workedSeconds = breakStartSeconds - startSeconds;
+    } else {
+      workedSeconds = currentSeconds - startSeconds - (breakEndSeconds - breakStartSeconds);
+    }
+
+    return workedSeconds / 3600; // convertendo para horas
+  }
+
   function getCompletedWorkDaysThisMonth(now) {
     const year = now.getFullYear();
     const month = now.getMonth() + 1;
@@ -222,6 +259,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const year = now.getFullYear();
     const month = now.getMonth() + 1;
     const workDaysThisMonth = getWorkDaysInMonth(year, month);
+    const hoursWorked = getHoursWorkedToday(now);
 
     state.isWorkingDay = isWorkDay(now);
 
@@ -230,6 +268,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         totalToday: 0,
         totalMonth: 0,
         totalYear: state.januaryEarnings,
+        generalHourlyRate: 0,
         companies: state.companies.map(c => ({
           ...c,
           earningsToday: 0,
@@ -259,14 +298,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         };
       }
 
-      const dailyRate = calculateDailyRate(company, workDaysThisMonth);
-
-      // Ganho de hoje
-      const progressToday = getProgressTodayAsDecimal(now);
-      const earningsToday = dailyRate * progressToday;
+      // Ganho de hoje (correto com horas trabalhadas)
+      const earningsToday = calculateEarningsToday(company, hoursWorked, workDaysThisMonth);
 
       // Ganho do mês
+      const dailyRate = calculateDailyRate(company, workDaysThisMonth);
       const completedDaysThisMonth = getCompletedWorkDaysThisMonth(now);
+      const progressToday = getProgressTodayAsDecimal(now);
       const earningsMonth = dailyRate * (completedDaysThisMonth + progressToday);
 
       // Ganho do ano (exclui janeiro, que já está em state.januaryEarnings)
@@ -322,7 +360,16 @@ document.addEventListener("DOMContentLoaded", async () => {
       totalToday,
       totalMonth,
       totalYear,
+      generalHourlyRate: hoursWorked > 0 ? totalToday / hoursWorked : 0,
       companies: results
+        .sort((a, b) => {
+          // Ordenar por maior ganho primeiro
+          if (b.earningsToday !== a.earningsToday) {
+            return b.earningsToday - a.earningsToday;
+          }
+          // Se empatar, ordenar alfabeticamente
+          return a.name.localeCompare(b.name);
+        })
     };
   }
 
@@ -347,9 +394,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       statusEl.textContent = `Trabalho em andamento: ${(progress * 100).toFixed(2)}% do dia concluído`;
     }
 
-    // Valores por hora/minuto/segundo (baseado no ganho de hoje)
-    const hoursWorkedToday = Math.max(0, (now.getHours() - WORK_HOURS.start) + (now.getMinutes() / 60));
-    const hourlyRate = hoursWorkedToday > 0 ? earnings.totalToday / hoursWorkedToday : 0;
+    // Valores por hora/minuto/segundo (fixo baseado no ganho de hoje)
+    const hourlyRate = earnings.generalHourlyRate;
 
     document.getElementById('perHour').textContent = formatCurrency(hourlyRate);
     document.getElementById('perMinute').textContent = formatCurrency(hourlyRate / 60);
