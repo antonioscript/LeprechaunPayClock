@@ -161,6 +161,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
+  function calculateHourlyRate(company, workDaysThisMonth) {
+    if (company.type === 'CLT') {
+      // Para CLT: salary_monthly / (dias_úteis × 8)
+      return company.salary_monthly / (workDaysThisMonth * 8);
+    } else {
+      // Para PJ: usar o valor hourly_rate direto
+      return company.hourly_rate;
+    }
+  }
+
   function getProgressTodayAsDecimal(now) {
     const currentHour = now.getHours();
     const currentMin = now.getMinutes();
@@ -225,6 +235,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           earningsToday: 0,
           earningsMonth: 0,
           earningsYear: 0,
+          hourlyRate: calculateHourlyRate(c, workDaysThisMonth),
           active: false
         }))
       };
@@ -243,6 +254,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           earningsToday: 0,
           earningsMonth: 0,
           earningsYear: 0,
+          hourlyRate: calculateHourlyRate(company, workDaysThisMonth),
           active: false
         };
       }
@@ -301,6 +313,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         earningsToday,
         earningsMonth,
         earningsYear,
+        hourlyRate: calculateHourlyRate(company, workDaysThisMonth),
         active: true
       };
     });
@@ -418,6 +431,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         <div class="company-logo">${logoHTML}</div>
         <div class="company-name">${company.name}</div>
         <div class="company-earnings-today">${formatCurrency(company.earningsToday)}</div>
+        <div class="company-hourly-rate">R$/h: ${formatCurrency(company.hourlyRate)}</div>
         <div class="company-status">${company.active ? 'Ativo' : 'Inicia em ' + new Date(company.start_date).toLocaleDateString('pt-BR')}</div>
       `;
 
