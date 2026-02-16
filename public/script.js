@@ -257,23 +257,34 @@ document.addEventListener("DOMContentLoaded", async () => {
       const completedDaysThisMonth = getCompletedWorkDaysThisMonth(now);
       const earningsMonth = dailyRate * (completedDaysThisMonth + progressToday);
 
-      // Ganho do ano (simplificado: só conta a partir de janeiro deste ano)
+      // Ganho do ano (exclui janeiro, que já está em state.januaryEarnings)
       let earningsYear = 0;
 
-      // Se começou em janeiro ou depois
+      // Se começou em 2026, calcular meses APÓS janeiro
       if (company.start_date.startsWith(year.toString())) {
-        let currentDate = new Date(company.start_date);
-        currentDate.setDate(1);
+        const startDate = new Date(company.start_date);
+
+        // Loop APENAS para fevereiro em diante
+        let currentDate = new Date(year, 1, 1);  // Começa em fevereiro (mês 1 = fevereiro)
 
         while (currentDate <= now) {
           const currentYear = currentDate.getFullYear();
           const currentMonth = currentDate.getMonth() + 1;
+
+          // Verificar se empresa já havia começado neste mês
+          if (startDate > new Date(currentYear, currentMonth - 1, 1)) {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            continue;
+          }
+
           const workDaysCurrentMonth = getWorkDaysInMonth(currentYear, currentMonth);
           const dailyRateCurrentMonth = calculateDailyRate(company, workDaysCurrentMonth);
 
           if (currentMonth === month) {
+            // Mês atual: usar ganho calculado (parcial)
             earningsYear += earningsMonth;
-          } else if (currentDate.getFullYear() === year && currentMonth < month) {
+          } else {
+            // Meses completos após janeiro
             earningsYear += dailyRateCurrentMonth * workDaysCurrentMonth;
           }
 
@@ -331,13 +342,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById('perMinute').textContent = formatCurrency(hourlyRate / 60);
     document.getElementById('perSecond').textContent = formatCurrency(hourlyRate / 3600);
 
-    // Captions
-    document.getElementById('monthCaption').textContent = 'Aproximado com base em dias úteis/mês (atual)';
-    document.getElementById('yearCaption').textContent = 'Acumulado desde janeiro';
-
-    // Labels de horário
-    document.getElementById('startTimeLabel').textContent = `${String(WORK_HOURS.start).padStart(2, '0')}:00`;
-    document.getElementById('endTimeLabel').textContent = `${String(WORK_HOURS.end).padStart(2, '0')}:00`;
 
     // Atualizar cards de empresas
     updateCompanyCards(earnings.companies);
