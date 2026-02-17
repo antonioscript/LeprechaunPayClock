@@ -1,10 +1,8 @@
 {
-  "version": 2,
   "buildCommand": "npm install",
-  "public": "public",
-  "functions": {
-    "api/**/*.js": {
-      "runtime": "nodejs18.x"
-    }
+  "framework": "express",
+  "nodeVersion": "18.x",
+  "env": {
+    "NODE_ENV": "production"
   }
 }

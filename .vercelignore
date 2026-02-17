@@ -1,0 +1,10 @@
+.git
+.gitignore
+README.md
+node_modules
+.env.local
+.env.*.local
+.vs
+*.sqlite-wal
+*.sqlite-shm
+tmpclaude*

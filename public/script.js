@@ -7,7 +7,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     companies: [],
     januaryEarnings: 0,
     clockStart: Date.now(),
-    isWorkingDay: false
+    isWorkingDay: false,
+    simulatedTime: null
   };
 
   // =============================
@@ -32,6 +33,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   function calculateWorkSecondsPerDay() {
     // 9:00 - 18:00 (9h) menos 1h de almoço = 8h = 28.800s
     return 8 * 3600;
+  }
+
+  function getActualTime() {
+    if (state.simulatedTime) {
+      return state.simulatedTime;
+    }
+    return new Date();
   }
 
   // =============================
@@ -490,7 +498,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // =============================
 
   function mainLoop() {
-    const now = new Date();
+    const now = getActualTime();
     const earnings = calculateEarnings(now);
     updateDisplay(earnings);
   }
@@ -502,11 +510,46 @@ document.addEventListener("DOMContentLoaded", async () => {
   await loadCompanies();
   await loadJanuaryEarnings();
 
+  // Carregar hora simulada do localStorage
+  const savedSimulatedTime = localStorage.getItem('simulatedTime');
+  if (savedSimulatedTime) {
+    const [hours, minutes] = savedSimulatedTime.split(':');
+    state.simulatedTime = new Date();
+    state.simulatedTime.setHours(parseInt(hours, 10), parseInt(minutes, 10), 0, 0);
+  }
+
   // Primeira atualização imediata
   mainLoop();
 
   // Atualizar a cada segundo
   setInterval(mainLoop, 1000);
+
+  // =============================
+  // CONTROLE DE SIMULAÇÃO DE HORÁRIO (Dev Mode)
+  // =============================
+
+  window.setSimulatedTime = (hour, minute = 0) => {
+    if (hour === null || hour === undefined) {
+      state.simulatedTime = null;
+      localStorage.removeItem('simulatedTime');
+      console.log('✅ Hora simulada removida');
+      return;
+    }
+    state.simulatedTime = new Date();
+    state.simulatedTime.setHours(hour, minute, 0, 0);
+    localStorage.setItem('simulatedTime', `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`);
+    console.log(`✅ Hora simulada: ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`);
+  };
+
+  window.getSimulatedTime = () => {
+    return state.simulatedTime ? `${state.simulatedTime.getHours().toString().padStart(2, '0')}:${state.simulatedTime.getMinutes().toString().padStart(2, '0')}` : 'Hora real';
+  };
+
+  console.log('💡 Dicas para testes:');
+  console.log('  - setSimulatedTime(14, 30)  → Simula 14:30');
+  console.log('  - setSimulatedTime(9, 0)    → Simula 9:00');
+  console.log('  - setSimulatedTime(null)    → Remove simulação');
+  console.log('  - getSimulatedTime()        → Mostra hora atual');
 
   // =============================
   // TOGGLE DE TEMA
