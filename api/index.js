@@ -12,7 +12,7 @@ app.use(cors());
 app.use(express.json());
 
 // Inicializar banco de dados
-initDatabase();
+await initDatabase();
 
 // Servir arquivos estáticos
 app.use(express.static('public'));
