@@ -1,8 +1,8 @@
-import { getDatabase } from '../lib/database.js';
+import { getDatabaseAsync } from '../lib/database.js';
 
 export default async function handler(req, res) {
   try {
-    const db = getDatabase();
+    const db = await getDatabaseAsync();
 
     if (req.method === 'GET') {
       // Buscar ganho de janeiro (mês 1)
@@ -34,7 +34,7 @@ export default async function handler(req, res) {
       res.status(405).json({ error: 'Method not allowed' });
     }
   } catch (error) {
-    console.error('Database error:', error);
+    console.error('Error in earnings handler:', error);
     res.status(500).json({ error: 'Database error' });
   }
 }
