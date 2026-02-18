@@ -2,86 +2,101 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+console.log('[START] Iniciando aplicação...');
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+console.log('[CONFIG] Loading .env from:', path.join(__dirname, '..', '.env.local'));
 dotenv.config({ path: path.join(__dirname, '..', '.env.local') });
+
+console.log('[CONFIG] Variáveis de ambiente:');
+console.log('[CONFIG] - TURSO_CONNECTION_URL:', process.env.TURSO_CONNECTION_URL ? 'SET' : 'NOT SET');
+console.log('[CONFIG] - TURSO_AUTH_TOKEN:', process.env.TURSO_AUTH_TOKEN ? 'SET' : 'NOT SET');
+console.log('[CONFIG] - NODE_ENV:', process.env.NODE_ENV);
 
 import express from 'express';
 import cors from 'cors';
-import { initDatabase, getInitError } from '../lib/database.js';
+import { initDatabase, getInitStatus, getInitError } from '../lib/database.js';
 import companiesHandler from './companies.js';
 import earningsHandler from './earnings.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 
-// Inicializar database
 let databaseInitialized = false;
 
-console.log('🔄 Iniciando aplicação...');
+console.log('[INIT] Chamando initDatabase()...');
 initDatabase()
   .then(() => {
     databaseInitialized = true;
-    console.log('✅ Database initialized successfully');
+    console.log('[INIT] ✅ Promise resolvida com sucesso');
   })
   .catch((error) => {
-    console.error('❌ Failed to initialize database:', error.message);
-    console.error('Stack:', error.stack);
+    console.error('[INIT] ❌ Promise rejeitada:', error.message);
+    console.error('[INIT] Stack:', error.stack);
   });
 
-// Middleware para garantir que db está pronta
 app.use((req, res, next) => {
+  const status = getInitStatus();
+  console.log(`[REQUEST] ${req.method} ${req.path} - DB Status:`, status);
+  
   const initError = getInitError();
   if (initError) {
-    console.log('❌ Request blocked - database init error:', initError.message);
+    console.log('[REQUEST] ❌ Bloqueando - erro de inicialização');
     return res.status(503).json({ 
       error: 'Database initialization failed',
       details: initError.message 
     });
   }
   if (!databaseInitialized) {
-    console.log('⏳ Request blocked - database still initializing');
-    return res.status(503).json({ error: 'Database initializing...' });
+    console.log('[REQUEST] ⏳ Bloqueando - ainda inicializando');
+    return res.status(503).json({ error: 'Database still initializing' });
   }
   next();
 });
 
-// Servir arquivos estáticos
 app.use(express.static('public'));
 
-// Rotas de API
 app.get('/api/companies', (req, res) => companiesHandler(req, res));
 app.get('/api/earnings', (req, res) => earningsHandler(req, res));
 app.post('/api/earnings', (req, res) => earningsHandler(req, res));
 
-// Health check
 app.get('/api/health', (req, res) => {
-  const initError = getInitError();
+  const status = getInitStatus();
   res.json({ 
     status: 'ok', 
     database: databaseInitialized,
-    error: initError ? initError.message : null,
+    initStatus: status,
     timestamp: new Date().toISOString()
   });
 });
 
-// Fallback para SPA
+app.get('/api/debug', (req, res) => {
+  const status = getInitStatus();
+  res.json({
+    env: {
+      hasURL: !!process.env.TURSO_CONNECTION_URL,
+      hasToken: !!process.env.TURSO_AUTH_TOKEN,
+      NODE_ENV: process.env.NODE_ENV
+    },
+    status
+  });
+});
+
 app.get('*', (req, res) => {
   res.sendFile('public/index.html', { root: '.' });
 });
 
 const server = app.listen(PORT, () => {
-  console.log(`🎯 Leprechaun PayClock rodando em http://localhost:${PORT}`);
+  console.log(`[LISTEN] 🎯 Servidor rodando em http://localhost:${PORT}`);
 });
 
-// Graceful shutdown
 process.on('SIGTERM', () => {
-  console.log('SIGTERM received, shutting down gracefully');
+  console.log('[SHUTDOWN] SIGTERM recebido');
   server.close(() => {
-    console.log('Server closed');
+    console.log('[SHUTDOWN] Servidor fechado');
     process.exit(0);
   });
 });
