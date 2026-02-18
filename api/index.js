@@ -18,23 +18,30 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Flag para rastrear inicialização
-let databaseReady = false;
+// Inicializar database
+let databaseInitialized = false;
+let initError = null;
 
-// Inicializar banco de dados
-try {
-  await initDatabase();
-  databaseReady = true;
-  console.log('✅ Database initialized successfully');
-} catch (error) {
-  console.error('❌ Failed to initialize database:', error);
-  process.exit(1);
-}
+initDatabase()
+  .then(() => {
+    databaseInitialized = true;
+    console.log('✅ Database initialized successfully');
+  })
+  .catch((error) => {
+    initError = error;
+    console.error('❌ Failed to initialize database:', error);
+  });
 
 // Middleware para garantir que db está pronta
 app.use((req, res, next) => {
-  if (!databaseReady) {
-    return res.status(503).json({ error: 'Database not ready' });
+  if (initError) {
+    return res.status(503).json({ 
+      error: 'Database initialization failed',
+      details: initError.message 
+    });
+  }
+  if (!databaseInitialized) {
+    return res.status(503).json({ error: 'Database initializing...' });
   }
   next();
 });
@@ -49,7 +56,11 @@ app.post('/api/earnings', (req, res) => earningsHandler(req, res));
 
 // Health check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', database: databaseReady });
+  res.json({ 
+    status: 'ok', 
+    database: databaseInitialized,
+    error: initError ? initError.message : null
+  });
 });
 
 // Fallback para SPA
