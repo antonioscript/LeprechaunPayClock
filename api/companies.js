@@ -7,11 +7,17 @@ export default async function handler(req, res) {
   }
 
   try {
+    console.log('📥 GET /api/companies - waiting for database');
     const db = await getDatabaseAsync();
+    console.log('✅ Database ready, executing query');
+    
     const result = await db.execute('SELECT * FROM companies WHERE active = 1 ORDER BY id');
+    console.log(`✅ Found ${result.rows.length} companies`);
+    
     res.json({ data: result.rows });
   } catch (error) {
-    console.error('Error fetching companies:', error);
-    res.status(500).json({ error: 'Failed to fetch companies' });
+    console.error('❌ Error in GET /api/companies:', error.message);
+    console.error('Stack:', error.stack);
+    res.status(500).json({ error: error.message || 'Failed to fetch companies' });
   }
 }
