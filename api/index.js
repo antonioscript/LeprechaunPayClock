@@ -18,8 +18,26 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+// Flag para rastrear inicialização
+let databaseReady = false;
+
 // Inicializar banco de dados
-await initDatabase();
+try {
+  await initDatabase();
+  databaseReady = true;
+  console.log('✅ Database initialized successfully');
+} catch (error) {
+  console.error('❌ Failed to initialize database:', error);
+  process.exit(1);
+}
+
+// Middleware para garantir que db está pronta
+app.use((req, res, next) => {
+  if (!databaseReady) {
+    return res.status(503).json({ error: 'Database not ready' });
+  }
+  next();
+});
 
 // Servir arquivos estáticos
 app.use(express.static('public'));
@@ -31,7 +49,7 @@ app.post('/api/earnings', (req, res) => earningsHandler(req, res));
 
 // Health check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok' });
+  res.json({ status: 'ok', database: databaseReady });
 });
 
 // Fallback para SPA
