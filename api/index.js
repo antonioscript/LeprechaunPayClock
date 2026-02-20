@@ -1,23 +1,34 @@
-import dotenv from 'dotenv';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-console.log('[START] Iniciando aplicação...');
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-console.log('[CONFIG] Loading .env from:', path.join(__dirname, '..', '.env.local'));
-dotenv.config({ path: path.join(__dirname, '..', '.env.local') });
-
-console.log('[CONFIG] Variáveis de ambiente:');
-console.log('[CONFIG] - TURSO_CONNECTION_URL:', process.env.TURSO_CONNECTION_URL ? 'SET' : 'NOT SET');
-console.log('[CONFIG] - TURSO_AUTH_TOKEN:', process.env.TURSO_AUTH_TOKEN ? 'SET' : 'NOT SET');
-console.log('[CONFIG] - NODE_ENV:', process.env.NODE_ENV);
-
 import express from 'express';
 import cors from 'cors';
 import { initDatabase, getInitStatus, getInitError } from '../lib/database.js';
 import companiesHandler from './companies.js';
 import earningsHandler from './earnings.js';
+
+// Log de inicialização - PRIMEIRO SEMPRE
+console.log('[START] Iniciando aplicação...');
+console.log('[CONFIG] NODE_ENV:', process.env.NODE_ENV);
+console.log('[CONFIG] - TURSO_CONNECTION_URL:', process.env.TURSO_CONNECTION_URL ? '✅ SET' : '❌ NOT SET');
+console.log('[CONFIG] - TURSO_AUTH_TOKEN:', process.env.TURSO_AUTH_TOKEN ? '✅ SET' : '❌ NOT SET');
+
+// Tentar carregar .env.local apenas em desenvolvimento
+if (process.env.NODE_ENV !== 'production') {
+  try {
+    import('dotenv').then(dotenv => {
+      import('path').then(path => {
+        import('url').then(url => {
+          const { fileURLToPath } = url.default;
+          const __dirname = path.default.dirname(fileURLToPath(import.meta.url));
+          dotenv.default.config({ path: path.default.join(__dirname, '..', '.env.local') });
+          console.log('[CONFIG] .env.local carregado (desenvolvimento)');
+        });
+      });
+    }).catch(err => {
+      console.log('[CONFIG] dotenv não disponível (ok em produção)');
+    });
+  } catch (err) {
+    console.log('[CONFIG] dotenv não disponível (ok em produção)');
+  }
+}
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -31,10 +42,10 @@ console.log('[INIT] Chamando initDatabase()...');
 initDatabase()
   .then(() => {
     databaseInitialized = true;
-    console.log('[INIT] ✅ Promise resolvida com sucesso');
+    console.log('[INIT] ✅ Database Promise resolvida com sucesso');
   })
   .catch((error) => {
-    console.error('[INIT] ❌ Promise rejeitada:', error.message);
+    console.error('[INIT] ❌ Database Promise rejeitada:', error.message);
     console.error('[INIT] Stack:', error.stack);
   });
 
