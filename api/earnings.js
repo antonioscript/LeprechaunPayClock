@@ -1,11 +1,22 @@
-import { getDatabaseAsync } from '../lib/database.js';
+import { initDatabase, getDatabaseAsync } from '../lib/database.js';
 
 export default async function handler(req, res) {
+  console.log('[EARNINGS-HANDLER] Iniciando handler');
+  
+  // Garantir que DB está inicializado
   try {
+    await initDatabase();
+  } catch (error) {
+    console.error('[EARNINGS-HANDLER] Erro ao chamar initDatabase:', error.message);
+  }
+
+  try {
+    console.log('[EARNINGS-HANDLER] Pedindo database async...');
     const db = await getDatabaseAsync();
+    console.log('[EARNINGS-HANDLER] ✅ Database obtido');
 
     if (req.method === 'GET') {
-      // Buscar ganho de janeiro (mês 1)
+      console.log('[EARNINGS-HANDLER] GET - buscando ganhos de janeiro');
       const result = await db.execute({
         sql: 'SELECT * FROM earnings_history WHERE month = 1 AND year = 2026',
         args: []
@@ -17,7 +28,7 @@ export default async function handler(req, res) {
 
       res.json(result.rows[0]);
     } else if (req.method === 'POST') {
-      // Atualizar ganho de janeiro
+      console.log('[EARNINGS-HANDLER] POST - atualizando ganhos');
       const { total_earned } = req.body;
 
       if (!total_earned || typeof total_earned !== 'number') {
@@ -34,7 +45,8 @@ export default async function handler(req, res) {
       res.status(405).json({ error: 'Method not allowed' });
     }
   } catch (error) {
-    console.error('Error in earnings handler:', error);
-    res.status(500).json({ error: 'Database error' });
+    console.error('[EARNINGS-HANDLER] ❌ Erro:', error.message);
+    console.error('[EARNINGS-HANDLER] Stack:', error.stack);
+    res.status(500).json({ error: error.message || 'Database error' });
   }
 }
