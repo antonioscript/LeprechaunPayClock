@@ -408,6 +408,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Mapa de logos/imagens das empresas
   const companyImages = {
+    'almatar': '/assets/Almatar.png',
     'pepsi': '/assets/pepsi.png',
     'pepsico': '/assets/pepsi.png',
     'itaú': '/assets/itau.svg',
@@ -421,6 +422,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Fallback emojis para empresas sem imagem
   const companyEmojis = {
+    'almatar': '🏢',
     'pepsi': '🥤',
     'pepsico': '🥤',
     'itaú': '🏦',
