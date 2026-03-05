@@ -29,6 +29,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
+  function parseISODateAsLocal(dateString) {
+    const [year, month, day] = dateString.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  }
+
   function calculateWorkSecondsPerDay() {
     // 9:00 - 18:00 (9h) menos 1h de almoço = 8h = 28.800s
     return 8 * 3600;
@@ -285,7 +290,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     let totalYear = state.januaryEarnings;
 
     const results = state.companies.map(company => {
-      const companyStartDate = new Date(company.start_date);
+      const companyStartDate = parseISODateAsLocal(company.start_date);
 
       if (companyStartDate > now) {
         return {
@@ -312,7 +317,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       // Se começou em 2026, calcular meses APÓS janeiro
       if (company.start_date.startsWith(year.toString())) {
-        const startDate = new Date(company.start_date);
+        const startDate = parseISODateAsLocal(company.start_date);
 
         // Loop APENAS para fevereiro em diante
         let currentDate = new Date(year, 1, 1);  // Começa em fevereiro (mês 1 = fevereiro)
@@ -480,7 +485,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         <div class="company-name">${company.name}</div>
         <div class="company-earnings-today">${formatCurrency(company.earningsToday)}</div>
         <div class="company-hourly-rate">R$/h: ${formatCurrency(company.hourlyRate)}</div>
-        <div class="company-status">${company.active ? 'Ativo' : 'Inicia em ' + new Date(company.start_date).toLocaleDateString('pt-BR')}</div>
+        <div class="company-status">${company.active ? 'Ativo' : 'Inicia em ' + parseISODateAsLocal(company.start_date).toLocaleDateString('pt-BR')}</div>
       `;
 
       container.appendChild(card);
