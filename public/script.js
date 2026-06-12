@@ -158,11 +158,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   // CÁLCULO DE GANHOS (Front-end)
   // =============================
 
+  const MONTHLY_BONUSES = {
+    'Genial Investimentos': 500
+  };
+
   function calculateDailyRate(company, workDaysThisMonth) {
+    const bonus = MONTHLY_BONUSES[company.name] || 0;
     if (company.type === 'CLT') {
-      return company.salary_monthly / workDaysThisMonth;
+      return (company.salary_monthly + bonus) / workDaysThisMonth;
     } else {
-      return (company.hourly_rate * 8) / workDaysThisMonth;
+      return (company.hourly_rate * 8 + bonus) / workDaysThisMonth;
     }
   }
 
@@ -178,8 +183,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function calculateEarningsToday(company, hoursWorked, workDaysThisMonth) {
     if (company.type === 'PJ') {
-      // Para PJ: hourly_rate × horas_trabalhadas
-      return company.hourly_rate * hoursWorked;
+      const bonus = MONTHLY_BONUSES[company.name] || 0;
+      return company.hourly_rate * hoursWorked + (bonus / workDaysThisMonth) * (hoursWorked / 8);
     } else {
       // Para CLT: daily_rate × (horas_trabalhadas / 8)
       const dailyRate = company.salary_monthly / workDaysThisMonth;
