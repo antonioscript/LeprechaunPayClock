@@ -172,12 +172,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function calculateHourlyRate(company, workDaysThisMonth) {
+    const bonus = MONTHLY_BONUSES[company.name] || 0;
     if (company.type === 'CLT') {
-      // Para CLT: salary_monthly / (dias_úteis × 8)
-      return company.salary_monthly / (workDaysThisMonth * 8);
+      return (company.salary_monthly + bonus) / (workDaysThisMonth * 8);
     } else {
-      // Para PJ: usar o valor hourly_rate direto
-      return company.hourly_rate;
+      return company.hourly_rate + bonus / (workDaysThisMonth * 8);
     }
   }
 
