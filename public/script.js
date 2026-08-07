@@ -158,9 +158,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // CÁLCULO DE GANHOS (Front-end)
   // =============================
 
-  const MONTHLY_BONUSES = {
-    'Genial Investimentos': 500
-  };
+  const MONTHLY_BONUSES = {};
 
   function calculateDailyRate(company, workDaysThisMonth) {
     const bonus = MONTHLY_BONUSES[company.name] || 0;
@@ -422,8 +420,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     'pepsico': '/assets/pepsi.png',
     'itaú': '/assets/itau.svg',
     'xp inc': '/assets/10_XP_Investimentos_logo.png',
-    'genial': '/assets/2.%20Genial.png',
-    'genial investimentos': '/assets/2.%20Genial.png',
+    'nstech': '/assets/nstech_logo_ofc.webp',
     'grupo sc': '/assets/logo.webp',
     'motz': '/assets/3.%20Motz.png',
     'founday': '/assets/founday.png',
