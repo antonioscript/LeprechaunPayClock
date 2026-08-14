@@ -160,7 +160,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const MONTHLY_BONUSES = {};
 
-  function calculateDailyRate(company, workDaysThisMonth) {
+  function calculateDailyRate(company, workDaysThisMonth, referenceDate = null) {
+    if (company.monthly_rate != null) {
+      const startDate = parseISODateAsLocal(company.start_date);
+      const ref = referenceDate || new Date();
+      const monthsElapsed = (ref.getFullYear() - startDate.getFullYear()) * 12
+                          + (ref.getMonth() - startDate.getMonth());
+      const currentPrincipal = company.principal * Math.pow(1 + company.monthly_rate, Math.max(0, monthsElapsed));
+      return (currentPrincipal * company.monthly_rate) / workDaysThisMonth;
+    }
     const bonus = MONTHLY_BONUSES[company.name] || 0;
     if (company.type === 'CLT') {
       return (company.salary_monthly + bonus) / workDaysThisMonth;
@@ -170,6 +178,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function calculateHourlyRate(company, workDaysThisMonth) {
+    if (company.monthly_rate != null) {
+      const dailyRate = calculateDailyRate(company, workDaysThisMonth, new Date());
+      return dailyRate / 8;
+    }
     const bonus = MONTHLY_BONUSES[company.name] || 0;
     if (company.type === 'CLT') {
       return (company.salary_monthly + bonus) / (workDaysThisMonth * 8);
@@ -179,11 +191,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function calculateEarningsToday(company, hoursWorked, workDaysThisMonth) {
-    if (company.type === 'PJ') {
+    if (company.monthly_rate != null) {
+      return calculateDailyRate(company, workDaysThisMonth, new Date()) * (hoursWorked / 8);
+    } else if (company.type === 'PJ') {
       const bonus = MONTHLY_BONUSES[company.name] || 0;
       return company.hourly_rate * hoursWorked + (bonus / workDaysThisMonth) * (hoursWorked / 8);
     } else {
-      // Para CLT: daily_rate × (horas_trabalhadas / 8)
       const dailyRate = company.salary_monthly / workDaysThisMonth;
       return dailyRate * (hoursWorked / 8);
     }
@@ -309,7 +322,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const earningsToday = calculateEarningsToday(company, hoursWorked, workDaysThisMonth);
 
       // Ganho do mês
-      const dailyRate = calculateDailyRate(company, workDaysThisMonth);
+      const dailyRate = calculateDailyRate(company, workDaysThisMonth, now);
       const completedDaysThisMonth = getCompletedWorkDaysThisMonth(now);
       const progressToday = getProgressTodayAsDecimal(now);
       const earningsMonth = dailyRate * (completedDaysThisMonth + progressToday);
@@ -335,7 +348,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           }
 
           const workDaysCurrentMonth = getWorkDaysInMonth(currentYear, currentMonth);
-          const dailyRateCurrentMonth = calculateDailyRate(company, workDaysCurrentMonth);
+          const dailyRateCurrentMonth = calculateDailyRate(company, workDaysCurrentMonth, currentDate);
 
           if (currentMonth === month) {
             // Mês atual: usar ganho calculado (parcial)
@@ -421,6 +434,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     'itaú': '/assets/itau.svg',
     'xp inc': '/assets/10_XP_Investimentos_logo.png',
     'nstech': '/assets/nstech_logo_ofc.webp',
+    'tesouro direto': '/assets/tesouro-direto.webp',
     'grupo sc': '/assets/logo.webp',
     'motz': '/assets/3.%20Motz.png',
     'founday': '/assets/founday.png',
