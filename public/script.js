@@ -434,7 +434,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     'itaú': '/assets/itau.svg',
     'xp inc': '/assets/10_XP_Investimentos_logo.png',
     'nstech': '/assets/nstech_logo_ofc.webp',
-    'tesouro direto': '/assets/tesouro-direto.webp',
+    'tesouro direto': '/assets/tesouro-direto-logo-0.png',
     'grupo sc': '/assets/logo.webp',
     'motz': '/assets/3.%20Motz.png',
     'founday': '/assets/founday.png',
