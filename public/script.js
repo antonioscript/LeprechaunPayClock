@@ -435,7 +435,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     'xp inc': '/assets/10_XP_Investimentos_logo.png',
     'nstech': '/assets/nstech_logo_ofc.webp',
     'rendimentos': '/assets/Tesouro-direto-logo12.jpg',
-    'b3': '/assets/B3.webp',
+    'b3': '/assets/Logo-B3.webp',
     'dm financeira': '/assets/dm-card-logo-2025.svg',
     'grupo sc': '/assets/logo.webp',
     'motz': '/assets/3.%20Motz.png',
