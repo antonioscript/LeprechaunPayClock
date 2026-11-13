@@ -434,6 +434,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     'itaú': '/assets/itau.svg',
     'xp inc': '/assets/10_XP_Investimentos_logo.png',
     'nstech': '/assets/nstech_logo_ofc.webp',
+    'genial': '/assets/2.%20Genial.png',
     'rendimentos': '/assets/Tesouro-direto-logo12.jpg',
     'b3': '/assets/B3.webp',
     'dm financeira': '/assets/dm-card-logo-2025.svg',
